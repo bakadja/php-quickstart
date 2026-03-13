@@ -43,6 +43,7 @@ if (isset($_POST['add'])) {
 } else if (isset($_POST['cancel'])) {
 	// Redirect to home page (index.php)
 	header("Location: index.php");
+	exit;
 }
 ?>
 <html>

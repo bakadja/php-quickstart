@@ -1,9 +1,9 @@
 <?php
 // Include the database connection file
-include_once("config.php");
+require("config.php");
 
 // Fetch contacts (in descending order)
-$result = mysqli_query($mysqli, "SELECT * FROM contacts ORDER BY id DESC"); 
+$result = $conn->query("SELECT * FROM contacts ORDER BY id DESC"); 
 ?>
 <html>
 <head>	
@@ -20,12 +20,12 @@ $result = mysqli_query($mysqli, "SELECT * FROM contacts ORDER BY id DESC");
 		</tr>
 		<?php
 		// Print contacts 
-		while($res = mysqli_fetch_array($result)) { 		
+		while($row = $result->fetch_assoc()) { 		
 			echo "<tr>";
-			echo "<td>".$res['name']."</td>";
-			echo "<td>".$res['age']."</td>";
-			echo "<td>".$res['email']."</td>";	
-			echo "<td><a href=\"edit.php?id=$res[id]\">Edit</a> | <a href=\"delete.php?id=$res[id]\" onClick=\"return confirm('Are you sure you want to delete this contact?')\">Delete</a></td>";		
+			echo "<td>".$row['name']."</td>";
+			echo "<td>".$row['age']."</td>";
+			echo "<td>".$row['email']."</td>";	
+			echo "<td><a href=\"edit.php?id=$row[id]\">Edit</a> | <a href=\"delete.php?id=$row[id]\" onClick=\"return confirm('Are you sure you want to delete this contact?')\">Delete</a></td>";		
 		}
 		?>
 	</table>

@@ -1,41 +1,41 @@
 <?php
 // Include database connection file
-include_once("config.php");
-
-if(isset($_POST['update']))
-{	
+require("config.php");
+$nameErr = $ageErr = $emailErr = "";
+if (isset($_POST['update'])) {
 	// Retrieve record values
-	$id = mysqli_real_escape_string($mysqli, $_POST['id']);
-	$name = mysqli_real_escape_string($mysqli, $_POST['name']);
-	$age = mysqli_real_escape_string($mysqli, $_POST['age']);
-	$email = mysqli_real_escape_string($mysqli, $_POST['email']);	
+	$id = $_POST['id'];
+	$name = $_POST['name'];
+	$age = $_POST['age'];
+	$email = $_POST['email'];
 
-	$nameErr = $ageErr = $emailErr = "";
-	
+	#$nameErr = $ageErr = $emailErr = "";
+
 	// Check for empty fields
-	if(empty($name) || empty($age) || empty($email)) {	
-		if(empty($name)) {
+	if (empty($name) || empty($age) || empty($email)) {
+		if (empty($name)) {
 			$nameErr = "* required";
 		}
-		if(empty($age)) {
+		if (empty($age)) {
 			$ageErr = "* required";
 		}
-		if(empty($email)) {
+		if (empty($email)) {
 			$emailErr = "* required";
-		}		
-	} else {	
+		}
+	} else {
 		// Execute UPDATE 
-		$stmt = $mysqli->prepare("UPDATE contacts SET name=?, age=?, email=? WHERE id=?");
+		$stmt = $conn->prepare("UPDATE contacts SET name=?, age=?, email=? WHERE id=?");
 		$stmt->bind_param("sisi", $name, $age, $email, $id);
 		$stmt->execute();
 
 		// Redirect to home page (index.php)
 		header("Location: index.php");
+		exit;
 	}
-}
-else if (isset($_POST['cancel'])) {
+} else if (isset($_POST['cancel'])) {
 	// Redirect to home page (index.php)
 	header("Location: index.php");
+	exit;
 }
 ?>
 <?php
@@ -43,48 +43,55 @@ else if (isset($_POST['cancel'])) {
 $id = $_GET['id'];
 
 // Get contact by id
-$result = mysqli_query($mysqli, "SELECT * FROM contacts WHERE id=$id");
+$query = "SELECT * FROM contacts WHERE id=?";
+$stmt = $conn->prepare($query);
+$stmt->bind_param("i", $id);
+$stmt->execute();
+$result = $stmt->get_result();
+#$result = $conn->query("SELECT * FROM contacts WHERE id=$id");
 
 if (!$result) {
-    printf("Error: %s\n", mysqli_error($mysqli));
-    exit();
+	die("Get result failed: " . $stmt->error);
 }
-else {
-	while($res = mysqli_fetch_array($result))
-	{
-		$name = $res['name'];
-		$age = $res['age'];
-		$email = $res['email'];
-	}
+
+if ($row = $result->fetch_assoc()) {
+
+	$name = $row['name'];
+	$age = $row['age'];
+	$email = $row['email'];
+} else {
+	die("Contact not found.");
 }
 ?>
 <html>
-<head>	
+
+<head>
 	<title>Edit Contact</title>
 	<link rel="stylesheet" href="styles.css" />
 </head>
+
 <body>
 	<form name="form1" method="post" action="edit.php?id=<?php echo $id ?>">
 		<table>
-			<tr> 
+			<tr>
 				<td>Name</td>
 				<td>
-					<input type="text" name="name" value="<?php echo $name;?>">
-					<span class="error"><?php echo $nameErr;?></span>
+					<input type="text" name="name" value="<?php echo $name; ?>">
+					<span class="error"><?php echo $nameErr; ?></span>
 				</td>
 			</tr>
-			<tr> 
+			<tr>
 				<td>Age</td>
 				<td>
-					<input type="text" name="age" value="<?php echo $age;?>">
-					<span class="error"><?php echo $ageErr;?></span>
+					<input type="text" name="age" value="<?php echo $age; ?>">
+					<span class="error"><?php echo $ageErr; ?></span>
 				</td>
 			</tr>
-			<tr> 
+			<tr>
 				<td>Email</td>
 				<td>
-					<input type="text" name="email" value="<?php echo $email;?>">
-					<span class="error"><?php echo $emailErr;?></span>
+					<input type="text" name="email" value="<?php echo $email; ?>">
+					<span class="error"><?php echo $emailErr; ?></span>
 				</td>
 			</tr>
 			<tr>
@@ -93,10 +100,11 @@ else {
 				</td>
 				<td>
 					<input type="submit" name="update" value="Update">
-					<input type="hidden" name="id" value=<?php echo $_GET['id'];?>>
+					<input type="hidden" name="id" value=<?php echo $_GET['id']; ?>>
 				</td>
 			</tr>
 		</table>
 	</form>
 </body>
+
 </html>

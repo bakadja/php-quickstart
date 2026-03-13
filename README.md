@@ -16,7 +16,8 @@ The application in this repository demonstrates how to:
 
 * Connect to a MariaDB database using `mysqli`
 * Execute queries (`SELECT`, `UPDATE`, `INSERT` and `DELETE`) to manage _contact_ data (like a digital [rolodex](https://en.wikipedia.org/wiki/Rolodex))
-* Use prepared statements
+* Use prepared statements across the CRUD pages
+* Load database credentials from environment variables with `vlucas/phpdotenv`
 
 ### Prepare the database
 
@@ -26,24 +27,44 @@ The application relies on a single database (`rolodex`) that contains a single t
 
 After you've [pulled down this repository](https://git-scm.com/docs/git-clone), follow these steps to get the app up and running:
 
-1. Update the database configuration settings in [config.php](src/config.php) (which is used across the app) to point to _your_ MariaDB database.
+1. Install the PHP dependencies with Composer.
+
+    ```bash
+    composer install
+    ```
+
+2. Create a `.env` file at the project root and add the database credentials used by [config.php](src/config.php).
 
     _Example configuration:_
 
-    ```php
-    $databaseHost = '127.0.0.1';
-    $databaseUsername = 'user_name';
-    $databasePassword = '********';
-    $databaseName = 'rolodex';
+    ```dotenv
+    DB_HOST=127.0.0.1
+    DB_PORT=3306
+    DB_USER=user_name
+    DB_PASS=your_password
+    DB_NAME=rolodex
     ```
 
-    **Note:** Check out the [config_skysql.php](src/config_skysql.php) file for an example of how to connect to [MariaDB SkySQL](https://mariadb.com/skyview).
+    `src/config.php` now loads these values through Composer's autoloader and `vlucas/phpdotenv`, so credentials no longer need to be committed in source files.
 
-2. Run the application using the [built-in web server](https://www.php.net/manual/en/features.commandline.webserver.php).
+3. Run the application using the [built-in web server](https://www.php.net/manual/en/features.commandline.webserver.php).
 
     ```bash
-    $ php -S localhost:5000
+    php -S localhost:5000 -t src
     ```
+
+4. Open `http://localhost:5000` in your browser.
+
+### Recent changes
+
+The app now includes the following improvements:
+
+* Database credentials are loaded from `.env`
+* `.env` and `vendor/` are ignored by Git through [.gitignore](.gitignore)
+* The MariaDB SkySQL example config file was removed
+* The CRUD pages now use the shared `$conn` connection from [config.php](src/config.php)
+* The `add.php`, `edit.php`, and `delete.php` flows now redirect with `exit` after header redirects
+* `add.php` now uses an explicit `add` submit action and shows the correct "Add Contact" page title
 
 ## Helpful Resources
 
